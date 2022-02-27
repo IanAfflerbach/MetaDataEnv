@@ -1,6 +1,7 @@
 using System.Collections;
 using System.IO;
 using System.IO.MemoryMappedFiles;
+using System.Linq;
 using Unity.Jobs;
 using UnityEngine;
 
@@ -25,6 +26,14 @@ public class BaseImporter
     public string fileName;
     public MemoryMappedFile MMFile;
 
+    [Range(1, 3)]
+    public int vd = 3;
+    public int cd = 4;
+    public int[] vertexAxes;
+    public int[] colorAxes;
+    public Vector2[] colorRanges;
+    public Mesh mesh;
+
     //Amounts;
     public readonly long MaxPoints = 2500000;
     public long NumMeshes;
@@ -36,6 +45,19 @@ public class BaseImporter
 
     //DataPacket
     public PointCloudInfo Info { get; protected set; }
+
+    public virtual void SetAxes(int[] vAxes, Vector3[] cAxes)
+    {
+        vd = vAxes.Length;
+        vertexAxes = new int[vAxes.Length];
+        vAxes.CopyTo(vertexAxes, 0);
+
+        cd = cAxes.Length;
+        colorAxes = new int[cAxes.Length];
+        cAxes.Select(x => (int)x.x).ToArray().CopyTo(colorAxes, 0);
+        colorRanges = new Vector2[cAxes.Length];
+        cAxes.Select(x => new Vector2(x.y, x.z)).ToArray().CopyTo(colorRanges, 0);
+    }
 
     public virtual void Import(string name)
     {

@@ -12,11 +12,8 @@ public class CSVImporter : BaseImporter
     public static new CSVImporter Instance { get; } = new CSVImporter();
 
     private List<string> headers;
+    private List<DataTypes> headerTypes;
     private List<DataRecord> records;
-
-    private Vector3 vertexAxes;
-    private Vector4 colorAxes;
-    private Mesh mesh;
 
     public override void Import(string name)
     {
@@ -25,9 +22,11 @@ public class CSVImporter : BaseImporter
         // Read Data from CSV File
         using (StreamReader reader = new StreamReader(fileName))
         {
+            // Parse Header
             headers = reader.ReadLine().Split(',').ToList();
-            records = new List<DataRecord>();
 
+            // Parse Records
+            records = new List<DataRecord>();
             while (!reader.EndOfStream)
             {
                 string[] points = reader.ReadLine().Split(',');
@@ -38,14 +37,11 @@ public class CSVImporter : BaseImporter
 
                 records.Add(record);
             }
+
+            headerTypes = records[0].GetTypes();
         }
 
         NumMeshes = (long)Mathf.Ceil((float)records.Count / MaxPoints);
-
-        // Set Axis Indices
-        vertexAxes = new Vector3(0, 1, 2);
-        colorAxes = new Vector4(3, 4, 5, 6);
-        
         Ready = true;
     }
 
@@ -74,19 +70,31 @@ public class CSVImporter : BaseImporter
             {
                 vertices[(int)j] = new Vector3()
                 {
-                    x = records[(int)j].GetValueFloat((int)vertexAxes.x),
-                    y = records[(int)j].GetValueFloat((int)vertexAxes.y),
-                    z = records[(int)j].GetValueFloat((int)vertexAxes.z)
+                    x = (vd >= 1) ? records[(int)j].GetValueFloat(vertexAxes[0]) : 0.0f,
+                    y = (vd >= 2) ? records[(int)j].GetValueFloat(vertexAxes[1]) : 0.0f,
+                    z = (vd >= 3) ? records[(int)j].GetValueFloat(vertexAxes[2]) : 0.0f
                 };
 
                 colors[(int)j] = 0;
-                //colors[(int)j] ^= ((int)records[(int)j].GetValueFloat((int)colorAxes.x) << 24);
-                //colors[(int)j] ^= ((int)records[(int)j].GetValueFloat((int)colorAxes.y) << 16);
-                //colors[(int)j] ^= ((int)records[(int)j].GetValueFloat((int)colorAxes.z) << 8);
-                //colors[(int)j] ^= ((int)records[(int)j].GetValueFloat((int)colorAxes.w) << 0);
+
+                if (cd >= 1) colors[(int)j] ^= (int)(GetNormalizedColor((int)j, 0) * 255) << 24;
+                if (cd >= 2) colors[(int)j] ^= (int)(GetNormalizedColor((int)j, 1) * 255) << 16;
+                if (cd >= 3) colors[(int)j] ^= (int)(GetNormalizedColor((int)j, 2) * 255) << 8;
             }
 
             pcMesh.Initialize(shader, vertices, colors);
         }
+    }
+
+    private float GetNormalizedColor(int i, int j)
+    {
+        float val = records[i].GetValueFloat(colorAxes[j]);
+        float min = colorRanges[j].x;
+        float max = colorRanges[j].y;
+
+        if (val > max) val = max;
+        if (val < min) val = min;
+
+        return (val - min) / (max - min);
     }
 }

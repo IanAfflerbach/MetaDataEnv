@@ -1,10 +1,6 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Unity.Collections;
-using Unity.Jobs;
 using UnityEngine;
 
 public class PointCloudLoader : MonoBehaviour
@@ -12,8 +8,12 @@ public class PointCloudLoader : MonoBehaviour
     public string filename;
 
     public Shader shader;
+
+    public int[] dimAxes;
+    public Vector3[] colAxes;
+
     [HideInInspector]
-    public bool permute;
+    public bool permute; //FIXME
 
     private BaseImporter importer;
 
@@ -41,6 +41,7 @@ public class PointCloudLoader : MonoBehaviour
                 break;
         }
 
+        importer.SetAxes(dimAxes, colAxes);
         importer.Import(fullFileName);
         guiEvent += OnGUIEvent;
     }
@@ -61,6 +62,7 @@ public class PointCloudLoader : MonoBehaviour
         {
             if (GUI.Button(new Rect(x, y, 100, 25), "Load Data"))
             {
+                gameObject.name = filename + "_Model";
                 StartCoroutine(importer.GenerateMeshes(transform, shader));
                 loaded = true;
             }

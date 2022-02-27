@@ -56,7 +56,7 @@ Shader "Unlit/PointCloudShader"
 			[maxvertexcount(9)]
 			void geom(triangle v2g input[3], inout TriangleStream<g2f> output)
 			{
-				float scaleMod = 1.0f;
+				float scaleMod = 0.1f;
 				const float4 vc[3] = { float4(-scaleMod / 0.866, -scaleMod, 0.0f, 0.0f),
 									float4(0.0f, scaleMod, 0.0f, 0.0f),
 									float4(scaleMod / 0.866, -scaleMod, 0.0f, 0.0f) };

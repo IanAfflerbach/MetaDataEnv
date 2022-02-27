@@ -141,10 +141,10 @@ public struct ColorJob : IJob
     {
         for (int i = 0; i < num; i++)
         {
-            float r = ((cols[i] & 0xFF000000) >> 24);
-            float g = ((cols[i] & 0x00FF0000) >> 16);
-            float b = ((cols[i] & 0x0000FF00) >> 8);
-            float a = ((cols[i] & 0x000000FF) >> 0);
+            float r = ((cols[i] & 0xFF000000) >> 24) / 255.0f;
+            float g = ((cols[i] & 0x00FF0000) >> 16) / 255.0f;
+            float b = ((cols[i] & 0x0000FF00) >> 8)  / 255.0f;
+            float a = ((cols[i] & 0x000000FF) >> 0)  / 255.0f;
 
             newCols[i] = new Vector4(r, g, b, a);
         }
