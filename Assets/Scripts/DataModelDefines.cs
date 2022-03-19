@@ -63,9 +63,8 @@ public class DataPoint
                 if (val) return 1.0f;
                 else return 0.0f;
             case DataTypes.STRING:
-                return float.NaN;
             default:
-                return float.NaN;
+                return defaultFloat;
         }
     }
 
